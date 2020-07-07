@@ -17,6 +17,9 @@ public interface AuthorService {
 
     AuthorDTO save(AuthorDTO authorDTO);
 
-    AuthorDTO update(AuthorDTO authorDTO, Long id);
+    List<AuthorDTO> findByParameters(Integer limit, String firstName, String lastName);
+
+    void delete(Long id);
+
 
 }

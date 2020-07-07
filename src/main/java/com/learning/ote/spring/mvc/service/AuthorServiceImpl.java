@@ -8,11 +8,15 @@ import com.learning.ote.spring.mvc.domain.entity.AuthorEntity;
 import com.learning.ote.spring.mvc.domain.entity.BookEntity;
 import com.learning.ote.spring.mvc.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorServiceImpl implements AuthorService{
@@ -55,8 +59,38 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     @Override
-    public AuthorDTO update(AuthorDTO authorDTO, Long id) {
-        A
+    public List<AuthorDTO> findByParameters(Integer limit, String firstName, String lastName) {
+        List<AuthorEntity> authors;
+        if(firstName!=null && lastName!=null){
+            authors = authorRepository.findByFirstNameStartsWithAndLastNameStartsWith(firstName, lastName);
+        }
+        else if(firstName!=null && lastName==null) {
+            authors = authorRepository.findByFirstNameStartsWith(firstName);
+        }
+        else if(firstName==null && lastName!=null) {
+            authors = authorRepository.findByLastNameStartsWith(lastName);
+        }
+        else{
+            if (limit==null){
+                authors = authorRepository.findAllByOrderByLastName();
+            }
+            else
+            {
+                Pageable pageable = PageRequest.of(0, limit);
+                authors = authorRepository.findAllByOrderByLastName(pageable);
+            }
+        }
+
+
+        return authors.stream()
+                .map(AuthorConverter::convert)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void delete(Long id) {
+
+        authorRepository.deleteById(id);
     }
 
 

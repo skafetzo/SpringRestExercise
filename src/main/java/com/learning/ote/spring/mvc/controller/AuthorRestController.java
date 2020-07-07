@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/authors")
 public class AuthorRestController {
@@ -24,22 +26,45 @@ public class AuthorRestController {
     }
 
     @PostMapping
-    public AuthorDTO create(@RequestBody AuthorDTO authorDTO) {
-        return authorService.save(authorDTO);
+    public ResponseEntity<AuthorDTO> create(@RequestBody AuthorDTO authorDTO) {
+
+        if (authorDTO.getId() != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(authorDTO);
+        }
+        AuthorDTO createdAuthorDTO =  authorService.save(authorDTO);
+        return ResponseEntity
+                .status( HttpStatus.CREATED)
+                .body(createdAuthorDTO);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AuthorDTO> updateAuthor(@RequestBody AuthorDTO authorDTO, @PathVariable("id") Long authorId){
 
-        AuthorDTO author = authorService.
+        authorDTO.setId(authorId);
+        AuthorDTO updatedAuthorDTO = authorService.save(authorDTO);
+        return ResponseEntity
+                .status( HttpStatus.OK)
+                .body(updatedAuthorDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> deleteAuthor(@PathVariable Long id) {
+
+        authorService.delete(id);
+        return ResponseEntity.ok().build();
 
     }
 
+    @GetMapping
+    public ResponseEntity<List<AuthorDTO>> findTop(@RequestParam(required = false) Integer limit,
+                                                   @RequestParam(required = false) String firstName,
+                                                   @RequestParam(required = false) String lastName) {
 
+        List<AuthorDTO> authorDTOs = authorService.findByParameters(limit, firstName, lastName);
 
-
-    @DeleteMapping("{id}")
-    void deleteAuthor(@PathVariable Long id) {
-        repository.deleteById(id);
+        return ResponseEntity
+                .status( HttpStatus.OK)
+                .body(authorDTOs);
     }
 }
