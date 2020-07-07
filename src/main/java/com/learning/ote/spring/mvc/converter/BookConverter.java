@@ -31,13 +31,4 @@ public class BookConverter {
         return book;
     }
 
-    // TODO: Move it to AuthorConverter
-    private static AuthorDTO convert(AuthorEntity author) {
-        AuthorDTO authorDTO = new AuthorDTO();
-        authorDTO.setId(author.getId());
-        authorDTO.setLastName(author.getLastName());
-        authorDTO.setFirstName(author.getFirstName());
-
-        return authorDTO;
-    }
 }
