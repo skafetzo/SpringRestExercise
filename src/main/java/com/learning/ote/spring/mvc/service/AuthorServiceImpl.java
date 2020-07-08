@@ -59,8 +59,24 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     @Override
-    public List<AuthorDTO> findByParameters(Integer limit, String firstName, String lastName) {
+    public List<AuthorDTO> findTop(Integer limit) {
         List<AuthorEntity> authors;
+
+        if (limit==null){
+            authors = authorRepository.findAllByOrderByLastName();
+        } else {
+            Pageable pageable = PageRequest.of(0, limit);
+            authors = authorRepository.findAllByOrderByLastName(pageable);
+        }
+        return authors.stream()
+                .map(AuthorConverter::convert)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AuthorDTO> FindByNameOrSurname(String firstName, String lastName) {
+        List<AuthorEntity> authors = new ArrayList<>();
+
         if(firstName!=null && lastName!=null){
             authors = authorRepository.findByFirstNameStartsWithAndLastNameStartsWith(firstName, lastName);
         }
@@ -70,24 +86,14 @@ public class AuthorServiceImpl implements AuthorService{
         else if(firstName==null && lastName!=null) {
             authors = authorRepository.findByLastNameStartsWith(lastName);
         }
-        else{
-            if (limit==null){
-                authors = authorRepository.findAllByOrderByLastName();
-            }
-            else
-            {
-                Pageable pageable = PageRequest.of(0, limit);
-                authors = authorRepository.findAllByOrderByLastName(pageable);
-            }
-        }
-
 
         return authors.stream()
                 .map(AuthorConverter::convert)
                 .collect(Collectors.toList());
+
     }
 
-    @Override
+   @Override
     public void delete(Long id) {
 
         authorRepository.deleteById(id);

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -61,8 +62,13 @@ public class AuthorRestController {
                                                    @RequestParam(required = false) String firstName,
                                                    @RequestParam(required = false) String lastName) {
 
-        List<AuthorDTO> authorDTOs = authorService.findByParameters(limit, firstName, lastName);
+        List<AuthorDTO> authorDTOs = new ArrayList<>();
 
+        if(firstName!= null || lastName!=null){
+           authorDTOs = authorService.FindByNameOrSurname(firstName, lastName);
+        }else{
+            authorDTOs = authorService.findTop(limit);
+        }
         return ResponseEntity
                 .status( HttpStatus.OK)
                 .body(authorDTOs);
